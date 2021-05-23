@@ -1,6 +1,9 @@
 package sysu.sdcs.sensordatacollector;
 
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
@@ -18,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.LongDef;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -74,6 +78,7 @@ public class MainActivity extends AppCompatActivity{
             handler.postDelayed(this,1000);
         }
     };
+    private boolean safeToTakePicture = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,16 +98,25 @@ public class MainActivity extends AppCompatActivity{
         parameters.set("cam_mode", 1 ); //not sure why this arcane setting is required. found this in another post on Stackoverlflow
         camera.setParameters(parameters);
         camera.setDisplayOrientation(90);
+
         mPreview = new CameraPreview(this, camera);
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
         preview.addView(mPreview);
+        safeToTakePicture = true;
         captureButton = (Button) findViewById(R.id.button_capture);
         captureButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         // get an image from the camera
-                        camera.takePicture(null, null, Picture);
+                        if (camera == null) {
+                            Log.d("Error", "Camera is null");
+                        }
+                        if (safeToTakePicture) {
+                            camera.takePicture(null, null, Picture);
+                            safeToTakePicture = false;
+                        }
+
                     }
                 }
         );
@@ -131,10 +145,8 @@ public class MainActivity extends AppCompatActivity{
         return mediaFile;
     }
     private Camera.PictureCallback Picture = new Camera.PictureCallback() {
-
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
-
             File pictureFile = getOutputMediaFile();
             if (pictureFile == null){
                 Log.d("TAG", "Error creating media file, check storage permissions");
@@ -145,13 +157,17 @@ public class MainActivity extends AppCompatActivity{
                 FileOutputStream fos = new FileOutputStream(pictureFile);
                 fos.write(data);
                 fos.close();
+                safeToTakePicture = true;
+                camera.startPreview();
             } catch (FileNotFoundException e) {
                 Log.d("TAG", "File not found: " + e.getMessage());
             } catch (IOException e) {
                 Log.d("TAG", "Error accessing file: " + e.getMessage());
             }
         }
+
     };
+
 
     //权限申请
     @Override
