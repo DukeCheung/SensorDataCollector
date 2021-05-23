@@ -8,70 +8,19 @@
     android:padding="15dp"
     tools:context=".MainActivity">
 
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="path-ID :   "/>
-        <EditText
-            android:id="@+id/edt_pathID"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
-
-
-    <!--<LinearLayout-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:orientation="vertical">-->
-    <!--<EditText-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content" />-->
-
-    <!--</LinearLayout>-->
+    <FrameLayout
+        android:id="@+id/camera_preview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        />
 
     <Button
-        android:id="@+id/btn_control"
-        android:layout_width="match_parent"
+        android:id="@+id/button_capture"
+        android:text="Capture"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Sensor"></Button>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="15dp"
-            android:text="采集记录：" />
-
-        <TextView
-            android:id="@+id/record"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="5dp" />
-
-        <Button
-            android:id="@+id/camera_start"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Record" />
-
-        <SurfaceView
-            android:id="@+id/sv_view"
-            android:layout_width="270dp"
-            android:layout_height="480dp"
-            android:layout_gravity="center"
-            android:text="" />
-
-    </LinearLayout>
+        />
 
 </LinearLayout>
