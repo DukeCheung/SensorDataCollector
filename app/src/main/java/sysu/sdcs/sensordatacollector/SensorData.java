@@ -61,6 +61,25 @@ public class SensorData {
         return data;
     }
 
+    public static String getLastDataStr() {
+        String data = "";
+        int i = magneticSensorData.size()-1;
+        String[] mag = magneticSensorData.get(i);
+        String[] gyro = gyroscopeSensorData.get(i);
+        String[] orien = orientationSensorData.get(i);
+        String[] step = stepSensorData.get(i);
+        String[] acc = accelerometerSensorData.get(i);
+        String one_detail = "" + (i+1) + ","
+                + mag[0] + "," + mag[1] + "," + mag[2] + ","
+                + acc[0] + "," + acc[1] + "," + acc[2] + ","
+                + gyro[0] + "," + gyro[1] + "," + gyro[2] + ","
+                + orien[0] + "," + orien[1] + "," + orien[2] + ","
+                + null2zero(step[0]) + "," + step[1] + "," + timestamps.get(i) + "\n" ;
+        data = data + one_detail;
+//        clear();
+        return data;
+    }
+
     public static String null2zero(String item){
         if(item == null || item.equals(""))
             return "0";

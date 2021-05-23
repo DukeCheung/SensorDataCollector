@@ -1,5 +1,6 @@
 package sysu.sdcs.sensordatacollector;
 
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -32,7 +33,10 @@ import java.io.IOException;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 //import android.support.annotation.NonNull;
 //import android.support.v7.app.AppCompatActivity;
@@ -52,13 +56,6 @@ public class MainActivity extends AppCompatActivity{
     private Sensor stepCounterSensor;
     private Sensor stepDetectSensor;
 
-    private Button btn_control;
-    private Button camera_control;
-    private EditText edt_path;
-    private TextView tv_state;
-    private TextView tv_record;
-
-    private ScheduledFuture future;
     private String file_name = "";
     private String cap_records = "";
 
@@ -120,6 +117,17 @@ public class MainActivity extends AppCompatActivity{
                     }
                 }
         );
+
+        sensorListener = new SensorListener();
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        magneticSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        orientationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+        stepCounterSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+        stepDetectSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+        gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
+        registerSensor();
     }
     private static File getOutputMediaFile(){
         // To be safe, you should check that the SDCard is mounted
@@ -158,6 +166,15 @@ public class MainActivity extends AppCompatActivity{
                 fos.write(data);
                 fos.close();
                 safeToTakePicture = true;
+                file_name = pictureFile.toString().substring(pictureFile.toString().length()-23, pictureFile.toString().length()-4)+ ".csv";
+                // registerSensor();
+                FileUtil.saveSensorData(file_name, SensorData.getFileHead());
+                if (FileUtil.saveSensorData(file_name, SensorData.getLastDataStr())) {
+                    Toast.makeText(MainActivity.this, "传感器数据保存成功", Toast.LENGTH_SHORT).show();
+                } else
+                    Toast.makeText(MainActivity.this, "传感器数据保存失败", Toast.LENGTH_SHORT).show();
+                SensorData.clear();
+                // sensorManager.unregisterListener(sensorListener);
                 camera.startPreview();
             } catch (FileNotFoundException e) {
                 Log.d("TAG", "File not found: " + e.getMessage());
@@ -168,6 +185,28 @@ public class MainActivity extends AppCompatActivity{
 
     };
 
+    private void registerSensor() {
+        if (!sensorManager.registerListener(sensorListener, accelerometerSensor, SensorManager.SENSOR_DELAY_FASTEST))
+            Toast.makeText(MainActivity.this, "加速度传感器不可用", Toast.LENGTH_SHORT).show();
+
+        if (!sensorManager.registerListener(sensorListener, magneticSensor, SensorManager.SENSOR_DELAY_FASTEST))
+            Toast.makeText(MainActivity.this, "磁场传感器不可用", Toast.LENGTH_SHORT).show();
+
+        if (!sensorManager.registerListener(sensorListener, orientationSensor, SensorManager.SENSOR_DELAY_FASTEST))
+            Toast.makeText(MainActivity.this, "方向传感器不可用", Toast.LENGTH_SHORT).show();
+
+        if (!sensorManager.registerListener(sensorListener, stepCounterSensor, SensorManager.SENSOR_DELAY_FASTEST))
+            Toast.makeText(MainActivity.this, "记步传感器不可用", Toast.LENGTH_SHORT).show();
+
+        if (!sensorManager.registerListener(sensorListener, stepDetectSensor, SensorManager.SENSOR_DELAY_FASTEST))
+            Toast.makeText(MainActivity.this, "记步传感器不可用", Toast.LENGTH_SHORT).show();
+
+        if (!sensorManager.registerListener(sensorListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_FASTEST))
+            Toast.makeText(MainActivity.this, "陀螺仪不可用", Toast.LENGTH_SHORT).show();
+        // 重力加速度传感器
+        if (!sensorManager.registerListener(sensorListener, gravitySensor, SensorManager.SENSOR_DELAY_FASTEST))
+            Toast.makeText(MainActivity.this, "重力传感器不可用", Toast.LENGTH_SHORT).show();
+    }
 
     //权限申请
     @Override
