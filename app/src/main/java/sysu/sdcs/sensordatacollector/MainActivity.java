@@ -88,7 +88,11 @@ public class MainActivity extends AppCompatActivity{
         } catch (Exception e) {
 
         }
-        camera.getParameters().setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+        Camera.Parameters parameters = camera.getParameters();
+        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+        parameters.set("cam_mode", 1 ); //not sure why this arcane setting is required. found this in another post on Stackoverlflow
+        camera.setParameters(parameters);
+        camera.setDisplayOrientation(90);
         mPreview = new CameraPreview(this, camera);
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
         preview.addView(mPreview);
@@ -107,14 +111,14 @@ public class MainActivity extends AppCompatActivity{
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.
 
-        File mediaStorageDir = new File("/storage/emulated/0/SensorDataCollector/Pictures/");
+        File mediaStorageDir = new File("/storage/emulated/0/SensorData/Pictures/");
         // This location works best if you want the created images to be shared
         // between applications and persist after your app has been uninstalled.
 
         // Create the storage directory if it does not exist
         if (! mediaStorageDir.exists()){
             if (! mediaStorageDir.mkdirs()){
-                Log.d("MyCameraApp", "failed to create directory");
+                Log.d("SensorData", "failed to create directory");
                 return null;
             }
         }
