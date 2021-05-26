@@ -16,9 +16,10 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -98,6 +100,25 @@ public class MainActivity extends AppCompatActivity{
 
         mPreview = new CameraPreview(this, camera);
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+
+        // change aspect ratio to 4:3
+        // start
+        Camera.Size optimalSize = null;
+        double aspectRatio = 0;
+        if(camera != null){
+            //Setting the camera's aspect ratio
+            List<Camera.Size> sizes = parameters.getSupportedPreviewSizes();
+            optimalSize = mPreview.getOptimalPreviewSize(sizes, getResources().getDisplayMetrics().widthPixels, getResources().getDisplayMetrics().heightPixels);
+            aspectRatio = (float)optimalSize.width/optimalSize.height;
+        }
+        if(optimalSize!= null){
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT, (int)(getResources().getDisplayMetrics().widthPixels*aspectRatio));
+            preview.setLayoutParams(params);
+            WindowManager.LayoutParams surfaceParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT, (int)(getResources().getDisplayMetrics().widthPixels*aspectRatio));
+            mPreview.setLayoutParams(surfaceParams);
+        }
+        // end
+
         preview.addView(mPreview);
         safeToTakePicture = true;
         captureButton = (Button) findViewById(R.id.button_capture);
