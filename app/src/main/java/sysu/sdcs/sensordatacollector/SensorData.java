@@ -1,5 +1,8 @@
 package sysu.sdcs.sensordatacollector;
 
+import android.hardware.SensorManager;
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +18,8 @@ public class SensorData {
     public static List<String[]> stepSensorData = new ArrayList<String[]>();
     public static List<String[]> gyroscopeSensorData = new ArrayList<String[]>();
 
+
+
     public static void clear(){
         timestamps.clear();
         magneticSensorData.clear();
@@ -28,12 +33,31 @@ public class SensorData {
 
     public static void addSensorData(String[] mData, String[] aData, String[] oData,
                                      String gData[], String[] sData, String captime){
+
+        final float[] accelerometerReading = new float[3];
+        final float[] magnetometerReading = new float[3];
+        for(int i = 0;i < 3; ++i){
+            accelerometerReading[i] = Float.parseFloat(aData[i]);
+            magnetometerReading[i] = Float.parseFloat(mData[i]);
+        }
+
+        final float[] rotationMatrix = new float[9];
+        SensorManager.getRotationMatrix(rotationMatrix, null,
+                accelerometerReading, magnetometerReading);
+        // "mRotationMatrix" now has up-to-date information.
+        float[] mOrientationAngles = new float[3];
+        SensorManager.getOrientation(rotationMatrix, mOrientationAngles);
+
+        oData[0] = String.valueOf(Math.toDegrees(mOrientationAngles[0]));
+        oData[1] = String.valueOf(Math.toDegrees(mOrientationAngles[1]));
+        oData[2] = String.valueOf(Math.toDegrees(mOrientationAngles[2]));
+
         magneticSensorData.add(mData);
         accelerometerSensorData.add(aData);
-        orientationSensorData.add(oData);
         stepSensorData.add(sData);
         gyroscopeSensorData.add(gData);
         timestamps.add(captime);
+        orientationSensorData.add(oData);
     }
 
     public static String getFileHead(){

@@ -15,7 +15,7 @@ import java.io.IOException;
 public class FileUtil {
 
     public static String file_path = Environment.getExternalStorageDirectory().getAbsolutePath()
-            + "/SensorData/";
+            + "/SensorData/Sensors/";
 
     public static boolean saveSensorData(String file_name, String sensor_data){
         createFilePath();
